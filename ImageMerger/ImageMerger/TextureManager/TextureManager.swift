@@ -72,10 +72,13 @@ final class TextureManager {
         return cgImage
     }
 
-    func matchingTexture(to texture: MTLTexture, usage: MTLTextureUsage? = nil) throws -> MTLTexture {
+    func matchingTexture(to texture: MTLTexture,
+                         width: Int? = nil,
+                         height: Int? = nil,
+                         usage: MTLTextureUsage? = nil) throws -> MTLTexture {
         let matchingDescriptor = MTLTextureDescriptor()
-        matchingDescriptor.width = texture.width
-        matchingDescriptor.height = texture.height
+        matchingDescriptor.width = width ?? texture.width
+        matchingDescriptor.height = height ?? texture.height
         matchingDescriptor.usage = usage ?? texture.usage
         matchingDescriptor.pixelFormat = texture.pixelFormat
         matchingDescriptor.storageMode = texture.storageMode

@@ -22,7 +22,7 @@ final class ContentViewModel: ObservableObject {
     private let commandQueue: MTLCommandQueue
     private let textureManager: TextureManager
     private let mergeImages: MergeImages
-    private var texturePair: (source: MTLTexture, destinatition: MTLTexture)?
+    private var texturePair: (sourceImages: [MTLTexture], destinatition: MTLTexture)?
 
     init() {
         guard let device = MTLCreateSystemDefaultDevice()
@@ -48,26 +48,35 @@ final class ContentViewModel: ObservableObject {
     }
 
     func merge() {
-        let texture = Texture(device: self.device, imageName: "1-0-0.png")
-        let source = texture.mtlTexture
-        guard let destination = try? self.textureManager.matchingTexture(to: source, usage: .shaderWrite)
+        let texture1 = Texture(device: self.device, imageName: "1-0-0.png")
+        let texture2 = Texture(device: self.device, imageName: "1-1-0.png")
+        let texture3 = Texture(device: self.device, imageName: "1-0-1.png")
+        let texture4 = Texture(device: self.device, imageName: "1-1-1.png")
+
+        guard let destination = try? self.textureManager.matchingTexture(to: texture1.mtlTexture,
+                                                                         width: texture1.mtlTexture.width * 2,
+                                                                         height: texture1.mtlTexture.height * 2,
+                                                                         usage: .shaderWrite)
         else {
             return
         }
 
-        self.texturePair = (source, destination)
+        self.texturePair = ([texture1.mtlTexture,
+                             texture2.mtlTexture,
+                             texture3.mtlTexture,
+                             texture4.mtlTexture], destination)
         self.compute()
     }
 
     private func compute() {
-        guard let source = self.texturePair?.source,
+        guard let source = self.texturePair?.sourceImages,
               let destination = self.texturePair?.destinatition,
               let commandBuffer = self.commandQueue.makeCommandBuffer()
         else {
             return
         }
 
-        self.mergeImages.encode(source: source, destination: destination, in: commandBuffer)
+        self.mergeImages.encode(sourceImages: source, destination: destination, in: commandBuffer)
 
         commandBuffer.addCompletedHandler { _ in
             guard let cgImage = try? self.textureManager.cgImage(from: destination)

@@ -25,7 +25,7 @@ final class MergeImages {
         self.pipelineState = try library.device.makeComputePipelineState(function: function)
     }
 
-    func encode(source: MTLTexture,
+    func encode(sourceImages: [MTLTexture],
                 destination: MTLTexture,
                 in commandBuffer: MTLCommandBuffer) {
         guard let encoder = commandBuffer.makeComputeCommandEncoder()
@@ -33,13 +33,16 @@ final class MergeImages {
             return
         }
 
-        encoder.setTexture(source,
-                           index: 0)
-        encoder.setTexture(destination,
-                           index: 1)
+        for (index, item) in sourceImages.enumerated() {
+            encoder.setTexture(item,
+                               index: index)
+        }
 
-        let gridSize = MTLSize(width: source.width,
-                               height: source.height,
+        encoder.setTexture(destination,
+                           index: sourceImages.count)
+
+        let gridSize = MTLSize(width: destination.width,
+                               height: destination.height,
                                depth: 1)
 
         let threadGroupWidth = self.pipelineState.threadExecutionWidth
