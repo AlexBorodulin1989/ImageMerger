@@ -48,23 +48,28 @@ final class ContentViewModel: ObservableObject {
     }
 
     func merge() {
-        let texture1 = Texture(device: self.device, imageName: "1-0-0.png")
-        let texture2 = Texture(device: self.device, imageName: "1-1-0.png")
-        let texture3 = Texture(device: self.device, imageName: "1-0-1.png")
-        let texture4 = Texture(device: self.device, imageName: "1-1-1.png")
+        let textures = [
+            Texture(device: self.device, imageName: "1-0-0.png").mtlTexture,
+            Texture(device: self.device, imageName: "1-1-0.png").mtlTexture,
+            Texture(device: self.device, imageName: "1-0-1.png").mtlTexture,
+            Texture(device: self.device, imageName: "1-1-1.png").mtlTexture
+        ]
 
-        guard let destination = try? self.textureManager.matchingTexture(to: texture1.mtlTexture,
-                                                                         width: texture1.mtlTexture.width * 2,
-                                                                         height: texture1.mtlTexture.height * 2,
+        let firstTexture = textures.first!
+
+        let eps: Double = 0.0001
+
+        let dimensionSize = Int(sqrt(Double(textures.count) + eps))
+
+        guard let destination = try? self.textureManager.matchingTexture(to: firstTexture,
+                                                                         width: firstTexture.width * dimensionSize,
+                                                                         height: firstTexture.height * dimensionSize,
                                                                          usage: .shaderWrite)
         else {
             return
         }
 
-        self.texturePair = ([texture1.mtlTexture,
-                             texture2.mtlTexture,
-                             texture3.mtlTexture,
-                             texture4.mtlTexture], destination)
+        self.texturePair = (textures, destination)
         self.compute()
     }
 
@@ -101,7 +106,6 @@ final class ContentViewModel: ObservableObject {
 }
 
 extension CGImage {
-
   public func pngData() -> Data? {
     let cfdata: CFMutableData = CFDataCreateMutable(nil, 0)
     if let destination = CGImageDestinationCreateWithData(cfdata, kUTTypePNG as CFString, 1, nil) {
