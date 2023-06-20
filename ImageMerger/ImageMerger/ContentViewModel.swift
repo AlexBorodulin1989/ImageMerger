@@ -84,11 +84,33 @@ final class ContentViewModel: ObservableObject {
                 return
             }
 
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [self] in
                 self.image = cgImage
+                let filename = getDocumentsDirectory().appendingPathComponent("merged.png")
+                try? cgImage.pngData()?.write(to: filename)
             }
         }
 
         commandBuffer.commit()
     }
+
+    func getDocumentsDirectory() -> URL {
+        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        return paths[0]
+    }
+}
+
+extension CGImage {
+
+  public func pngData() -> Data? {
+    let cfdata: CFMutableData = CFDataCreateMutable(nil, 0)
+    if let destination = CGImageDestinationCreateWithData(cfdata, kUTTypePNG as CFString, 1, nil) {
+      CGImageDestinationAddImage(destination, self, nil)
+      if CGImageDestinationFinalize(destination) {
+        return cfdata as Data
+      }
+    }
+
+    return nil
+  }
 }
