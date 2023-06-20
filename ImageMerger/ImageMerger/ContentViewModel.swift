@@ -49,10 +49,22 @@ final class ContentViewModel: ObservableObject {
 
     func merge() {
         let textures = [
-            Texture(device: self.device, imageName: "1-0-0.png").mtlTexture,
-            Texture(device: self.device, imageName: "1-1-0.png").mtlTexture,
-            Texture(device: self.device, imageName: "1-0-1.png").mtlTexture,
-            Texture(device: self.device, imageName: "1-1-1.png").mtlTexture
+            Texture(device: self.device, imageName: "2-0-0.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-1-0.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-2-0.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-3-0.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-0-1.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-1-1.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-2-1.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-3-1.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-0-2.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-1-2.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-2-2.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-3-2.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-0-3.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-1-3.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-2-3.png").mtlTexture,
+            Texture(device: self.device, imageName: "2-3-3.png").mtlTexture
         ]
 
         let firstTexture = textures.first!
@@ -91,8 +103,9 @@ final class ContentViewModel: ObservableObject {
 
             DispatchQueue.main.async { [self] in
                 self.image = cgImage
-                let filename = getDocumentsDirectory().appendingPathComponent("merged.png")
-                try? cgImage.pngData()?.write(to: filename)
+                let filePath = getDocumentsDirectory().appendingPathComponent("merged.png")
+                print(filePath)
+                try? cgImage.pngData()?.write(to: filePath)
             }
         }
 
