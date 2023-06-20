@@ -33,10 +33,7 @@ final class MergeImages {
             return
         }
 
-        for (index, item) in sourceImages.enumerated() {
-            encoder.setTexture(item,
-                               index: index)
-        }
+        encoder.setTextures(sourceImages, range: 0..<sourceImages.count)
 
         encoder.setTexture(destination,
                            index: sourceImages.count)
