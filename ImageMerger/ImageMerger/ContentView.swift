@@ -16,6 +16,7 @@ struct ContentView: View {
                 Image(img,
                       scale: 1.0,
                       label: Text("Merged image"))
+                .resizable()
             } else {
                 Text("Merging...")
             }

@@ -9,8 +9,8 @@
 using namespace metal;
 
 constant bool supportsNonuniformThreadgroups [[ function_constant(0) ]];
-kernel void mergeTextures(array<texture2d<float, access::sample>, 16> sourceImages [[texture(0)]],
-                          texture2d<float, access::write> destination [[ texture(16) ]],
+kernel void mergeTextures(array<texture2d<float, access::sample>, 64> sourceImages [[texture(0)]],
+                          texture2d<float, access::write> destination [[ texture(64) ]],
                           uint2 position [[ thread_position_in_grid ]]) {
     const auto textureSize = ushort2(destination.get_width(),
                                      destination.get_height());
@@ -21,11 +21,11 @@ kernel void mergeTextures(array<texture2d<float, access::sample>, 16> sourceImag
         }
     }
 
-    ushort2 texturePieceSize = textureSize / 4;
+    ushort2 texturePieceSize = textureSize / 8;
 
     uint2 offset = uint2(position.x / texturePieceSize.x, position.y / texturePieceSize.y);
 
-    float4 color = sourceImages[offset.x + offset.y * 4].read(position - uint2(texturePieceSize.x * offset.x, texturePieceSize.y * offset.y));
+    float4 color = sourceImages[offset.x + offset.y * 8].read(position - uint2(texturePieceSize.x * offset.x, texturePieceSize.y * offset.y));
 
     destination.write(color, position);
 }
