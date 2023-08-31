@@ -10,7 +10,7 @@ using namespace metal;
 
 constant bool supportsNonuniformThreadgroups [[ function_constant(0) ]];
 kernel void mergeTextures(texture2d<float, access::sample> sourceImage [[texture(0)]],
-                          texture2d<float, access::write> destination [[ texture(64) ]],
+                          texture2d<float, access::write> destination [[texture(1)]],
                           constant uint2& offset [[ buffer(0) ]],
                           uint2 position [[ thread_position_in_grid ]]) {
     const auto textureSize = ushort2(destination.get_width(),

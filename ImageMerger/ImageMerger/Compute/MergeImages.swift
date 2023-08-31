@@ -39,9 +39,9 @@ final class MergeImages {
             encoder.setTexture(image, index: 0)
 
             encoder.setTexture(destination,
-                               index: sourceImages.count)
+                               index: 1)
 
-            var offset = SIMD2<uint>(uint(index % 8), uint(index / 8))
+            var offset = SIMD2<uint>(uint(index % 16), uint(index / 16))
 
             encoder.setBytes(&offset,
                              length: MemoryLayout<SIMD2<uint>>.stride,
