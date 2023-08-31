@@ -28,38 +28,48 @@ final class MergeImages {
     func encode(sourceImages: [MTLTexture],
                 destination: MTLTexture,
                 in commandBuffer: MTLCommandBuffer) {
-        guard let encoder = commandBuffer.makeComputeCommandEncoder()
-        else {
-            return
+
+        for index in 0..<sourceImages.count {
+            let image = sourceImages[index]
+            guard let encoder = commandBuffer.makeComputeCommandEncoder()
+            else {
+                return
+            }
+
+            encoder.setTexture(image, index: 0)
+
+            encoder.setTexture(destination,
+                               index: sourceImages.count)
+
+            var offset = SIMD2<uint>(uint(index % 8), uint(index / 8))
+
+            encoder.setBytes(&offset,
+                             length: MemoryLayout<SIMD2<uint>>.stride,
+                             index: 0)
+
+            let gridSize = MTLSize(width: destination.width,
+                                   height: destination.height,
+                                   depth: 1)
+
+            let threadGroupWidth = self.pipelineState.threadExecutionWidth
+            let threadGroupHeight = self.pipelineState.maxTotalThreadsPerThreadgroup / threadGroupWidth
+            let threadGroupSize = MTLSize(width: threadGroupWidth,
+                                          height: threadGroupHeight,
+                                          depth: 1)
+            encoder.setComputePipelineState(self.pipelineState)
+
+            if self.deviceSupportsNonuniformThreadgroups {
+                encoder.dispatchThreads(gridSize,
+                                        threadsPerThreadgroup: threadGroupSize)
+            } else {
+                let threadGroupCount = MTLSize(width: (gridSize.width + threadGroupWidth - 1) / threadGroupSize.width,
+                                               height: (gridSize.height + threadGroupSize.height - 1) / threadGroupSize.height,
+                                               depth: 1)
+                encoder.dispatchThreadgroups(threadGroupCount,
+                                             threadsPerThreadgroup: threadGroupSize)
+            }
+
+            encoder.endEncoding()
         }
-
-        encoder.setTextures(sourceImages, range: 0..<sourceImages.count)
-
-        encoder.setTexture(destination,
-                           index: sourceImages.count)
-
-        let gridSize = MTLSize(width: destination.width,
-                               height: destination.height,
-                               depth: 1)
-
-        let threadGroupWidth = self.pipelineState.threadExecutionWidth
-        let threadGroupHeight = self.pipelineState.maxTotalThreadsPerThreadgroup / threadGroupWidth
-        let threadGroupSize = MTLSize(width: threadGroupWidth,
-                                      height: threadGroupHeight,
-                                      depth: 1)
-        encoder.setComputePipelineState(self.pipelineState)
-
-        if self.deviceSupportsNonuniformThreadgroups {
-            encoder.dispatchThreads(gridSize,
-                                    threadsPerThreadgroup: threadGroupSize)
-        } else {
-            let threadGroupCount = MTLSize(width: (gridSize.width + threadGroupWidth - 1) / threadGroupSize.width,
-                                           height: (gridSize.height + threadGroupSize.height - 1) / threadGroupSize.height,
-                                           depth: 1)
-            encoder.dispatchThreadgroups(threadGroupCount,
-                                         threadsPerThreadgroup: threadGroupSize)
-        }
-
-        encoder.endEncoding()
     }
 }

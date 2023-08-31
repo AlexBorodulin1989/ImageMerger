@@ -167,15 +167,15 @@ final class ContentViewModel: ObservableObject {
 }
 
 extension CGImage {
-  public func pngData() -> Data? {
-    let cfdata: CFMutableData = CFDataCreateMutable(nil, 0)
-    if let destination = CGImageDestinationCreateWithData(cfdata, kUTTypePNG as CFString, 1, nil) {
-      CGImageDestinationAddImage(destination, self, nil)
-      if CGImageDestinationFinalize(destination) {
-        return cfdata as Data
-      }
+    public func pngData() -> Data? {
+        let cfdata: CFMutableData = CFDataCreateMutable(nil, 0)
+        if let destination = CGImageDestinationCreateWithData(cfdata, kUTTypePNG as CFString, 1, nil) {
+            CGImageDestinationAddImage(destination, self, nil)
+            if CGImageDestinationFinalize(destination) {
+                return cfdata as Data
+            }
+        }
+        
+        return nil
     }
-
-    return nil
-  }
 }
