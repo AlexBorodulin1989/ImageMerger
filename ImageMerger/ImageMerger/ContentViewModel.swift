@@ -24,6 +24,8 @@ final class ContentViewModel: ObservableObject {
     private let mergeImages: MergeImages
     private var texturePair: (sourceImages: [MTLTexture], destinatition: MTLTexture)?
 
+    let zoom = 3
+
     init() {
         guard let device = MTLCreateSystemDefaultDevice()
         else {
@@ -50,9 +52,9 @@ final class ContentViewModel: ObservableObject {
     func merge() {
         var textures = [MTLTexture]()
 
-        for i in 0...15 {
-            for c in 0...15 {
-                textures.append(Texture(device: self.device, imageName: "4-\(c)-\(i).png").mtlTexture)
+        for i in 0..<NSDecimalNumber(decimal: pow(2, zoom)).intValue {
+            for c in 0..<NSDecimalNumber(decimal: pow(2, zoom)).intValue {
+                textures.append(Texture(device: self.device, imageName: "\(zoom)-\(c)-\(i)_rect.png").mtlTexture)
             }
         }
 
@@ -82,7 +84,7 @@ final class ContentViewModel: ObservableObject {
             return
         }
 
-        self.mergeImages.encode(sourceImages: source, destination: destination, in: commandBuffer)
+        self.mergeImages.encode(sourceImages: source, destination: destination, zoom: zoom, in: commandBuffer)
 
         commandBuffer.addCompletedHandler { _ in
             guard let cgImage = try? self.textureManager.cgImage(from: destination)

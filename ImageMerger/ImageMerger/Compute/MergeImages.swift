@@ -27,6 +27,7 @@ final class MergeImages {
 
     func encode(sourceImages: [MTLTexture],
                 destination: MTLTexture,
+                zoom: Int,
                 in commandBuffer: MTLCommandBuffer) {
 
         for index in 0..<sourceImages.count {
@@ -41,7 +42,8 @@ final class MergeImages {
             encoder.setTexture(destination,
                                index: 1)
 
-            var offset = SIMD2<uint>(uint(index % 16), uint(index / 16))
+            var offset = SIMD2<uint>(uint(index % NSDecimalNumber(decimal: pow(2, zoom)).intValue),
+                                     uint(index / NSDecimalNumber(decimal: pow(2, zoom)).intValue))
 
             encoder.setBytes(&offset,
                              length: MemoryLayout<SIMD2<uint>>.stride,
